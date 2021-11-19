@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# jetbrains
+.idea/
+
+# reports
+test-reports/
+
+# MAC stuff
+.DS_Store
