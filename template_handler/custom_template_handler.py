@@ -16,6 +16,8 @@ class CustomTemplateHandler(TemplateHandler):
         Sceptre user data defined in the Stack config
     connection_manager: sceptre.connection_manager.ConnectionManager
         Connection manager that can be used to call AWS APIs
+    stack_group_config: dict
+        Sceptre parameters defined in the Stack group config
     """
 
     def __init__(self, *args, **kwargs):
