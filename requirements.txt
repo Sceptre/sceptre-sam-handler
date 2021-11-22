@@ -1,0 +1,12 @@
+bumpversion==0.5.3
+coverage==4.4.2
+pre-commit>=2.12.0,<2.13
+packaging==16.8
+pytest-runner>=3.0.0,<3.1.0
+pytest>=3.2.0,<3.3.0
+readme-renderer>=24.0
+setuptools>=40.6.2
+sceptre>=2.7
+tox>=2.9.1,<3.0.0
+twine>=1.12.1
+wheel==0.32.3
