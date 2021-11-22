@@ -11,9 +11,6 @@ test:
 lint:
 	    pre-commit run --all-files --show-diff-on-failure
 
-acceptance-test:
-	    behave acceptance-tests/
-
 dist: clean
 	python3 setup.py sdist
 	python3 setup.py bdist_wheel
