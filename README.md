@@ -20,8 +20,8 @@ By using this handler, you can now use SAM templates with all your favorite Scep
 
 Simply `pip install scepre-sam-handler`.
 
-If you want to install `aws-sam-cli` along with this handler using `pip`, you can use the "extra" 
-like `pip install sceptre-sam-handler[sam]`. 
+If you want to install `aws-sam-cli` along with this handler using `pip`, you can use the "extra"
+like `pip install sceptre-sam-handler[sam]`.
 
 ## How to use sceptre-sam-handler
 
@@ -51,7 +51,7 @@ When using _only_ sam cli (not Sceptre) to deploy using `sam deploy`, SAM CLI ef
 include Lambda functions and Lambda layers. It copies any locally-referenced files and resolves any
 dependencies into a directory called `.aws-sam`. This is the sam behavior as running `sam build`.
 2. SAM cli then transforms all SAM template URIs that reference local filepaths to S3 keys (among other)
-transformations it applies, uploads any built artifacts to those s3 keys, and saves the transformed 
+transformations it applies, uploads any built artifacts to those s3 keys, and saves the transformed
 template. This is the same behavior as running `sam package`.
 3. SAM cli finally takes that transformed template (along with a local sam config and any other cli
 arguments) and performs CloudFormation stack create/update with them.
