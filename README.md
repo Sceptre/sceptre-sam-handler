@@ -7,10 +7,10 @@ AWS SAM template (and its associated project) as a stack's template.
 This template handler will run `sam build` and then `sam package` from the indicated SAM Template's
 directory in order to generate a CloudFormation-ready template.
 
-**By using the SAM Handler, you are letting SAM compile a SAM template and upload artifacts to S3, 
+**By using the SAM Handler, you are letting SAM compile a SAM template and upload artifacts to S3,
 and then using Sceptre to actually do the deployment of the template to a stack.** In other words,
 by using this handler with Sceptre, _you skip ever using `sam deploy`; It's not needed_. You also
-likely won't need a sam config file with deployment defaults, since you'll be using Sceptre to 
+likely won't need a sam config file with deployment defaults, since you'll be using Sceptre to
 deploy rather than SAM.
 
 By using this handler, you can now use SAM templates with all your favorite Sceptre commands, like
@@ -86,7 +86,7 @@ https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/s
 ### Example Stack Config
 ```yaml
 # By using the SAM handler, you let SAM build and package the template and upload artifacts to S3
-# and Sceptre will use the packaged template to create the CloudFormation stack, using the stack 
+# and Sceptre will use the packaged template to create the CloudFormation stack, using the stack
 # config.
 template:
     type: sam
