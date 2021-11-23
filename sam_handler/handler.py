@@ -161,14 +161,18 @@ class SAM(TemplateHandler):
         return {
             "type": "object",
             "properties": {
-                "sam_template_path": {"type": "string"},
+                "path": {"type": "string"},
                 "artifact_prefix": {"type": "string"},
                 "artifact_bucket_name": {"type": "string"},
-                "sam_build_args": {"type": "object"},
-                "sam_package_args": {"type": "object"}
+                "build_args": {
+                    "type": "object",
+                },
+                "package_args": {
+                    "type": "object",
+                }
             },
             "required": [
-                "sam_template_path",
+                "path",
                 "artifact_bucket_name",
             ]
         }
@@ -185,7 +189,7 @@ class SAM(TemplateHandler):
 
     @property
     def sam_template_path(self) -> Path:
-        return Path(self.arguments['sam_template_path']).absolute()
+        return Path(self.arguments['path']).absolute()
 
     @property
     def sam_directory(self) -> Path:
@@ -232,7 +236,7 @@ class SAM(TemplateHandler):
             'cached': True,
             'template-file': str(self.sam_template_path)
         }
-        build_args = {**default_args, **self.arguments.get('sam_build_args', {})}
+        build_args = {**default_args, **self.arguments.get('build_args', {})}
         invoker.invoke('build', build_args)
 
     def _package(self, invoker: SamInvoker):
@@ -243,5 +247,5 @@ class SAM(TemplateHandler):
             'output-template-file': self.destination_template_path,
             'template-file': str(self.sam_template_path.absolute())
         }
-        package_args = {**default_args, **self.arguments.get('sam_package_args', {})}
+        package_args = {**default_args, **self.arguments.get('package_args', {})}
         invoker.invoke('package', package_args)

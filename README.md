@@ -18,17 +18,17 @@ The template "type" for this handler is `sam`.
 This handler takes several arguments, two of which are required.
 
 ### Arguments:
-* `sam_template_path` (string, required): The path **from the current working directory** (NOT the
+* `path` (string, required): The path **from the current working directory** (NOT the
 * project path) to the SAM Template.
 * `artifact_bucket_name` (string, required): The bucket name where artifacts should be uploaded to
 on S3 during the packaging process. If your project has a `template_bucket_name`, you can set this
 to `{{ template_bucket_name }}`.
 * `artifact_prefix` (string, optional): The prefix to apply to artifacts uploaded to S3. This can be
 the project's `{{ template_key_prefix }}`.
-* `sam_build_args` (dict, optional): Additional key/value pairs to supply to `sam build`. For
+* `build_args` (dict, optional): Additional key/value pairs to supply to `sam build`. For
 flag-type arguments that have no value, set the value to "True".
-* `sam_package_args` (dict, optional): Additional key/value pairs to apply to `sam package`. The
-same is true here as for `sam_build_args` for flag-type arguments.
+* `package_args` (dict, optional): Additional key/value pairs to apply to `sam package`. The
+same is true here as for `build_args` for flag-type arguments.
 
 ### Default behavior
 SAM commands are invoked using the system shell in a subprocess, with stdout redirected to stderr.
@@ -43,16 +43,16 @@ artifacts will be uploaded to:
 
 By default, these will be the sam commands that are run _from the template's directory_:
 ```shell
-sam build --cached --template-file [sam_template_path as absolute path]
+sam build --cached --template-file [path as absolute path]
 sam package \
   --s3-bucket [artifact_bucket_name argument] \
   --region [the stack region] \
   --s3-prefix [the prefix described above] \
-  --template-file [sam_template_path as absolute path]
+  --template-file [path as absolute path]
 ```
 
 If any additional arguments are desired for to be passed to SAM, you can specify those with dicts for
-the `sam_build_args` and `sam_package_args` template handler arguments. These key/value pairs will
+the `build_args` and `package_args` template handler arguments. These key/value pairs will
 override the defaults. For any flag-type arguments, set the value to `True`. If you want to remove
 a default argument (such as the `--cached` flag for `sam build`), set the value to `None`.
 
@@ -62,19 +62,25 @@ This handler uses the stack's connection information to generate AWS environment
 those on the sam process, ensuring that the AWS authentication configuration on the stack config and
 project is carried over to SAM without any need for additional arguments.
 
+If you desire to use a different profile or region when invoking `sam package` than what is set on 
+the stack, you should specify "profile" and/or "region" values for "package_args".
+
+
 **Important:** SAM creates CloudFormation-ready templates via `sam package`, which uploads built
 artifacts to S3 in the process. This means that Sceptre commands that do not normally require S3
 actions (such as `generate`, `validate`, `diff`, and others) will require them when using this
-handler. You will need to ensure that any user or role executing these commands has "s3:PutObject"
-permissions.
+handler. You will need to ensure that any user or role executing these commands has proper 
+permissions for these operations. For more information on required permissions, see the 
+[documentation for SAM permissions](
+https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-permissions.html).
 
 ### Example
 ```yaml
 template:
     type: sam
-    sam_template_path: path/from/my/cwd/template.yaml
+    path: path/from/my/cwd/template.yaml
     artifact_bucket_name: {{ template_bucket_name }}
     artifact_prefix: {{ template_key_prefix }}
-    sam_build_args:
+    build_args:
         use-container: True
 ```

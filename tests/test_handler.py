@@ -19,7 +19,7 @@ class TestSAM(FsTestCase):
         self.processed_contents = 'goodbye!'
         self.fs.create_file('my/random/path.yaml', contents=self.template_contents)
         self.arguments = {
-            'sam_template_path': 'my/random/path.yaml',
+            'path': 'my/random/path.yaml',
             'artifact_prefix': 'prefix',
             'artifact_bucket_name': 'bucket'
         }
@@ -59,7 +59,7 @@ class TestSAM(FsTestCase):
         self.handler.handle()
         self.invoker_class.assert_called_with(
             self.connection_manager,
-            Path(self.arguments['sam_template_path']).parent.absolute()
+            Path(self.arguments['path']).parent.absolute()
         )
 
     def test_handle__invokes_build_with_default_arguments(self):
@@ -68,18 +68,18 @@ class TestSAM(FsTestCase):
             'build',
             {
                 'cached': True,
-                'template-file': str(Path(self.arguments['sam_template_path']).absolute())
+                'template-file': str(Path(self.arguments['path']).absolute())
             }
         )
 
-    def test_handle__sam_build_args_specified__invokes_build_with_all_build_args(self):
-        self.arguments['sam_build_args'] = {'use-container': True}
+    def test_handle__build_args_specified__invokes_build_with_all_build_args(self):
+        self.arguments['build_args'] = {'use-container': True}
         self.handler.handle()
         self.invoker.invoke.assert_any_call(
             'build',
             {
                 'cached': True,
-                'template-file': str(Path(self.arguments['sam_template_path']).absolute()),
+                'template-file': str(Path(self.arguments['path']).absolute()),
                 'use-container': True
             }
         )
@@ -100,12 +100,12 @@ class TestSAM(FsTestCase):
                 'region': self.region,
                 's3-prefix': expected_prefix,
                 'output-template-file': expected_temp_dir,
-                'template-file': str(Path(self.arguments['sam_template_path']).absolute())
+                'template-file': str(Path(self.arguments['path']).absolute())
             }
         )
 
-    def test_handle__sam_package_args_specified__invokes_package_with_default_arguments(self):
-        self.arguments['sam_package_args'] = {'new': 'arg'}
+    def test_handle__package_args_specified__invokes_package_with_default_arguments(self):
+        self.arguments['package_args'] = {'new': 'arg'}
         self.handler.handle()
         expected_temp_dir = Path(self.temp_dir) / (self.name + '.yaml')
         expected_prefix = '/'.join(
@@ -123,7 +123,7 @@ class TestSAM(FsTestCase):
                 'region': self.region,
                 's3-prefix': expected_prefix,
                 'output-template-file': expected_temp_dir,
-                'template-file': str(Path(self.arguments['sam_template_path']).absolute()),
+                'template-file': str(Path(self.arguments['path']).absolute()),
                 'new': 'arg'
             }
         )
@@ -131,6 +131,15 @@ class TestSAM(FsTestCase):
     def test_handle__returns_contents_of_destination_template_file(self):
         result = self.handler.handle()
         self.assertEqual(self.processed_contents, result)
+
+    def test_validate_args_schema(self):
+        self.arguments['build_args'] = {
+            'use-container': True
+        }
+        self.arguments['package_args'] = {
+            'region': 'us-east-1'
+        }
+        self.handler.validate()
 
 
 class TestSamInvoker(TestCase):
