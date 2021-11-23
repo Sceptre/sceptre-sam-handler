@@ -18,7 +18,10 @@ By using this handler, you can now use SAM templates with all your favorite Scep
 
 ## How to install sceptre-sam-handler
 
-Simply `pip install scepre-sam-handler`!
+Simply `pip install scepre-sam-handler`.
+
+If you want to install `aws-sam-cli` along with this handler using `pip`, you can use the "extra" 
+like `pip install sceptre-sam-handler[sam]`. 
 
 ## How to use sceptre-sam-handler
 
@@ -38,6 +41,29 @@ the project's `{{ template_key_prefix }}`.
 flag-type arguments that have no value, set the value to "True".
 * `package_args` (dict, optional): Additional key/value pairs to apply to `sam package`. The
 same is true here as for `build_args` for flag-type arguments.
+
+### How does this handler work?
+
+When using _only_ sam cli (not Sceptre) to deploy using `sam deploy`, SAM CLI effectively performs
+3 steps:
+
+1. SAM cli builds the all the various resources special SAM resources, resolving dependencies. These would
+include Lambda functions and Lambda layers. It copies any locally-referenced files and resolves any
+dependencies into a directory called `.aws-sam`. This is the sam behavior as running `sam build`.
+2. SAM cli then transforms all SAM template URIs that reference local filepaths to S3 keys (among other)
+transformations it applies, uploads any built artifacts to those s3 keys, and saves the transformed 
+template. This is the same behavior as running `sam package`.
+3. SAM cli finally takes that transformed template (along with a local sam config and any other cli
+arguments) and performs CloudFormation stack create/update with them.
+
+When you use Sceptre with this handler, the SAM handler performs steps 1-2 above to create a template
+that Sceptre can use, **but it does not use sam to deploy it!**. Instead, Sceptre can use that template
+produced in step 2 above (via `sam package`) to perform all it's usual commands with all it's usual
+magic!
+
+In other words, using this handler lets you use resolvers, put your SAM stack into StackGroups, let
+you name your stack according to Sceptre's naming conventions, `validate`, `diff`, and more! Basically,
+the SAM stack can be managed using Sceptre just like any other.
 
 ### Default behavior
 SAM commands are invoked using the system shell in a subprocess, with stdout redirected to stderr.
@@ -73,7 +99,6 @@ project is carried over to SAM without any need for additional arguments.
 
 If you desire to use a different profile or region when invoking `sam package` than what is set on
 the stack, you should specify "profile" and/or "region" values for "package_args".
-
 
 **Important:** SAM creates CloudFormation-ready templates via `sam package`, which uploads built
 artifacts to S3 in the process. This means that Sceptre commands that do not normally require S3
