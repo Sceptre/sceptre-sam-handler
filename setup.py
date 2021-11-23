@@ -16,7 +16,6 @@ with open("README.md") as readme_file:
 
 install_requirements = [
     'sceptre>=2.7',
-    'aws-sam-cli'
 ]
 
 test_requirements = [
@@ -62,6 +61,7 @@ setup(
     setup_requires=setup_requirements,
     python_requires='>=3.6',
     extras_require={
-        "test": test_requirements
+        "test": test_requirements,
+        'sam': ['aws-sam-cli']
     }
 )
