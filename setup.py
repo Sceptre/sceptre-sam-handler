@@ -47,7 +47,7 @@ setup(
     },
     include_package_data=True,
     zip_safe=False,
-    keywords="sceptre, sceptre-template-handler, sam",
+    keywords="sceptre, sceptre-template-handler, sam, aws, cloudformation",
     classifiers=[
         "Intended Audience :: Developers",
         "Natural Language :: English",

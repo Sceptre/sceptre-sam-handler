@@ -44,16 +44,16 @@ same is true here as for `build_args` for flag-type arguments.
 
 ### How does this handler work?
 
-When using _only_ sam cli (not Sceptre) to deploy using `sam deploy`, SAM CLI effectively performs
+When using _only_ sam CLI (not Sceptre) to deploy using `sam deploy`, SAM CLI effectively performs
 3 steps:
 
-1. SAM cli builds the all the various resources special SAM resources, resolving dependencies. These would
+1. SAM CLI builds the all the various resources special SAM resources, resolving dependencies. These would
 include Lambda functions and Lambda layers. It copies any locally-referenced files and resolves any
 dependencies into a directory called `.aws-sam`. This is the sam behavior as running `sam build`.
-2. SAM cli then transforms all SAM template URIs that reference local filepaths to S3 keys (among other)
+2. SAM CLI then transforms all SAM template URIs that reference local filepaths to S3 keys (among other)
 transformations it applies, uploads any built artifacts to those s3 keys, and saves the transformed
 template. This is the same behavior as running `sam package`.
-3. SAM cli finally takes that transformed template (along with a local sam config and any other cli
+3. SAM CLI finally takes that transformed template (along with a local sam config and any other CLI
 arguments) and performs CloudFormation stack create/update with them.
 
 When you use Sceptre with this handler, the SAM handler performs steps 1-2 above to create a template
@@ -126,7 +126,7 @@ parameters:
     long_parameter: !file my/file/path
     my_template_parameter: !stack_output some/other/stack.yaml::SomeOutput
 
-# The SAM Handler will work all the other stack parameters you might want to use too!
+# The SAM Handler will work with all the other stack parameters you might want to use too!
 profile: my_profile
 iam_role: arn:aws:iam::1111111111:role/My-Deployment-Role
 region: us-east-1
