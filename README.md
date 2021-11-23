@@ -62,15 +62,15 @@ This handler uses the stack's connection information to generate AWS environment
 those on the sam process, ensuring that the AWS authentication configuration on the stack config and
 project is carried over to SAM without any need for additional arguments.
 
-If you desire to use a different profile or region when invoking `sam package` than what is set on 
+If you desire to use a different profile or region when invoking `sam package` than what is set on
 the stack, you should specify "profile" and/or "region" values for "package_args".
 
 
 **Important:** SAM creates CloudFormation-ready templates via `sam package`, which uploads built
 artifacts to S3 in the process. This means that Sceptre commands that do not normally require S3
 actions (such as `generate`, `validate`, `diff`, and others) will require them when using this
-handler. You will need to ensure that any user or role executing these commands has proper 
-permissions for these operations. For more information on required permissions, see the 
+handler. You will need to ensure that any user or role executing these commands has proper
+permissions for these operations. For more information on required permissions, see the
 [documentation for SAM permissions](
 https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-permissions.html).
 
