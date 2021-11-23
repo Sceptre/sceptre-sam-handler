@@ -3,11 +3,12 @@ from setuptools import setup, find_packages
 __version__ = "0.1.0"
 
 TEMPLATE_HANDLER_NAME = 'sceptre-sam-handler'
-TEMPLATE_TYPE = 'sam'
+TEMPLATE_HANDLER_TYPE = 'sam'
 TEMPLATE_HANDLER_MODULE_NAME = 'sam_handler.handler'
 TEMPLATE_HANDLER_CLASS = 'SAM'
 TEMPLATE_HANDLER_DESCRIPTION = 'Packages and renders SAM templates for use'
 TEMPLATE_HANDLER_AUTHOR = 'Jon Falkenstein'
+TEMPLATE_HANDLER_AUTHOR_EMAIL = 'sceptre@sceptre.org'
 # if multiple use single string with commas.
 TEMPLATE_HANDLER_URL = 'https://github.com/sceptre/{}'.format(TEMPLATE_HANDLER_NAME)
 
@@ -41,7 +42,7 @@ setup(
     ),
     entry_points={
         'sceptre.template_handlers': [
-            f"{TEMPLATE_TYPE}={TEMPLATE_HANDLER_MODULE_NAME}:{TEMPLATE_HANDLER_CLASS}"
+            f"{TEMPLATE_HANDLER_TYPE}={TEMPLATE_HANDLER_MODULE_NAME}:{TEMPLATE_HANDLER_CLASS}"
         ]
     },
     include_package_data=True,
