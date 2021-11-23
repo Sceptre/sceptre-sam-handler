@@ -7,6 +7,15 @@ AWS SAM template (and its associated project) as a stack's template.
 This template handler will run `sam build` and then `sam package` from the indicated SAM Template's
 directory in order to generate a CloudFormation-ready template.
 
+**By using the SAM Handler, you are letting SAM compile a SAM template and upload artifacts to S3, 
+and then using Sceptre to actually do the deployment of the template to a stack.** In other words,
+by using this handler with Sceptre, _you skip ever using `sam deploy`; It's not needed_. You also
+likely won't need a sam config file with deployment defaults, since you'll be using Sceptre to 
+deploy rather than SAM.
+
+By using this handler, you can now use SAM templates with all your favorite Sceptre commands, like
+`launch`, `validate`, `generate`, and `diff` (along with all the rest)!
+
 ## How to install sceptre-sam-handler
 
 Simply `pip install scepre-sam-handler`!
@@ -74,8 +83,11 @@ permissions for these operations. For more information on required permissions, 
 [documentation for SAM permissions](
 https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-permissions.html).
 
-### Example
+### Example Stack Config
 ```yaml
+# By using the SAM handler, you let SAM build and package the template and upload artifacts to S3
+# and Sceptre will use the packaged template to create the CloudFormation stack, using the stack 
+# config.
 template:
     type: sam
     path: path/from/my/cwd/template.yaml
@@ -83,4 +95,17 @@ template:
     artifact_prefix: {{ template_key_prefix }}
     build_args:
         use-container: True
+
+# You can use resolvers to pass parameters, just like any other Sceptre stack!
+parameters:
+    long_parameter: !file my/file/path
+    my_template_parameter: !stack_output some/other/stack.yaml::SomeOutput
+
+# The SAM Handler will work all the other stack parameters you might want to use too!
+profile: my_profile
+iam_role: arn:aws:iam::1111111111:role/My-Deployment-Role
+region: us-east-1
+
+stack_tags:
+    SomeTag: SomeValue
 ```
