@@ -17,16 +17,33 @@ class SamInvoker:
         connection_manager: ConnectionManager,
         sam_directory: Path,
         *,
-        environment_variables=os.environ,
+        environment_variables: Dict[str, str] = os.environ,
         run_subprocess=subprocess.run
     ):
+        """A utility for invoking SAM commands using subprocess
+
+        Args:
+            connection_manager: The TemplateHandler's ConnectionManager instance to use for obtaining
+                session environment variables
+            sam_directory: The directory of the SAM template to use as the CWD when invoking SAM
+            environment_variables: The dict of environment variables to use for invoking the SAM
+                handler
+            run_subprocess: The function to use for invoking subprocesses, matching the signature of
+                subprocess.run
+        """
         self.connection_manager = connection_manager
         self.sam_directory = sam_directory
 
         self.environment_variables = environment_variables
         self.run_subprocess = run_subprocess
 
-    def invoke(self, command_name: str, args_dict: dict):
+    def invoke(self, command_name: str, args_dict: dict) -> None:
+        """Invokes a SAM Command using the passed dict of arguments.
+
+        Args:
+            command_name: The name of the sam command to invoke (i.e. "build" or "package")
+            args_dict: The dictionary of arguments to pass to the command
+        """
         command_args = self._create_args(args_dict)
         command = f'sam {command_name}'
         if command_args.strip() != '':
@@ -62,7 +79,7 @@ class SamInvoker:
 
         return ' '.join(args)
 
-    def _invoke_sam_command(self, command: str):
+    def _invoke_sam_command(self, command: str) -> None:
         environment_variables = self._get_envs()
         self.run_subprocess(
             command,
@@ -94,7 +111,7 @@ class SamInvoker:
         """
         envs = self.environment_variables.copy()
         # Set aws environment variables specific to whatever AWS configuration has been set on the
-        # stack's connection manager
+        # stack's connection manager.
         credentials: Credentials = self.connection_manager._get_session(
             self.connection_manager.profile,
             self.connection_manager.region,
