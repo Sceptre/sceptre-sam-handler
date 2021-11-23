@@ -1,6 +1,6 @@
 coverage-all:
 		coverage erase
-		coverage run --source template_handler -m unittest
+		coverage run --source sam_handler -m unittest
 		coverage xml
 
 coverage: coverage-all
