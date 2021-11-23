@@ -4,7 +4,7 @@ __version__ = "0.1.0"
 
 TEMPLATE_HANDLER_NAME = 'sceptre-sam-handler'
 TEMPLATE_TYPE = 'sam'
-TEMPLATE_HANDLER_MODULE_NAME = 'sam_handler.handler.py'
+TEMPLATE_HANDLER_MODULE_NAME = 'sam_handler.handler'
 TEMPLATE_HANDLER_CLASS = 'SAM'
 TEMPLATE_HANDLER_DESCRIPTION = 'Packages and renders SAM templates for use'
 TEMPLATE_HANDLER_AUTHOR = 'Jon Falkenstein'
@@ -38,8 +38,8 @@ setup(
     license='Apache2',
     url=TEMPLATE_HANDLER_URL,
     packages=find_packages(
-        exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
-    py_modules=[TEMPLATE_HANDLER_MODULE_NAME],
+        exclude=["*.tests", "*.tests.*", "tests.*", "tests"]
+    ),
     entry_points={
         'sceptre.template_handlers': [
             f"{TEMPLATE_TYPE}={TEMPLATE_HANDLER_MODULE_NAME}:{TEMPLATE_HANDLER_CLASS}"
@@ -52,12 +52,15 @@ setup(
         "Intended Audience :: Developers",
         "Natural Language :: English",
         "Environment :: Console",
-        "Programming Language :: Python :: 3.8"
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9"
     ],
     test_suite="tests",
     install_requires=install_requirements,
     tests_require=test_requirements,
     setup_requires=setup_requirements,
+    python_requires='>=3.6',
     extras_require={
         "test": test_requirements
     }
