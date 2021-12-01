@@ -100,7 +100,6 @@ class TestSAM(FsTestCase):
                 'region': self.region,
                 's3-prefix': expected_prefix,
                 'output-template-file': expected_temp_dir,
-                'template-file': str(Path(self.arguments['path']).absolute())
             }
         )
 
@@ -123,7 +122,6 @@ class TestSAM(FsTestCase):
                 'region': self.region,
                 's3-prefix': expected_prefix,
                 'output-template-file': expected_temp_dir,
-                'template-file': str(Path(self.arguments['path']).absolute()),
                 'new': 'arg'
             }
         )
