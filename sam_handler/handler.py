@@ -245,7 +245,6 @@ class SAM(TemplateHandler):
             'region': self.connection_manager.region,
             's3-prefix': self.artifact_key_prefix,
             'output-template-file': self.destination_template_path,
-            'template-file': str(self.sam_template_path.absolute())
         }
         package_args = {**default_args, **self.arguments.get('package_args', {})}
         invoker.invoke('package', package_args)
