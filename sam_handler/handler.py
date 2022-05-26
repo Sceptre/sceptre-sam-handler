@@ -8,7 +8,8 @@ from typing import Dict
 
 from botocore.credentials import Credentials
 from sceptre.connection_manager import ConnectionManager
-from sceptre.template_handlers import TemplateHandler
+from sceptre.exceptions import UnsupportedTemplateFileTypeError
+from sceptre.template_handlers import TemplateHandler, helper
 
 
 class SamInvoker:
@@ -138,6 +139,10 @@ class SAM(TemplateHandler):
     """
 
     SAM_ARTIFACT_DIRECTORY = 'sam_artifacts'
+    standard_template_extensions = ['.yaml']
+    supported_template_extensions = (
+        standard_template_extensions + TemplateHandler.jinja_template_extensions
+    )
 
     def __init__(
         self,
@@ -183,7 +188,12 @@ class SAM(TemplateHandler):
             sam_directory=self.sam_directory
         )
         self._create_generation_destination()
-        self._build(invoker)
+        template_path = self._prepare_template()
+        self._build(invoker, template_path)
+        if template_path != self.sam_template_path:
+            # We created a temporary file for the build, so let's remove it now.
+            template_path.unlink()
+
         self._package(invoker)
         return self.destination_template_path.read_text()
 
@@ -231,10 +241,33 @@ class SAM(TemplateHandler):
         """Creates the destination_template_directory, if it doesn't exist."""
         self.destination_template_directory.mkdir(parents=True, exist_ok=True)
 
-    def _build(self, invoker: SamInvoker):
+    def _prepare_template(self) -> Path:
+        if self.sam_template_path.suffix not in self.supported_template_extensions:
+            raise UnsupportedTemplateFileTypeError(
+                f"Template has file extension {self.sam_template_path}. Only "
+                f"{self.supported_template_extensions} are supported."
+            )
+
+        if self.sam_template_path.suffix in self.standard_template_extensions:
+            return self.sam_template_path
+        elif self.sam_template_path.suffix in self.jinja_template_extensions:
+            return self.compile_jinja_template()
+
+    def compile_jinja_template(self) -> Path:
+        self.logger.info("Compiling Jinja template...")
+        template_body = helper.render_jinja_template(
+            str(self.sam_template_path),
+            {'sceptre_user_data': self.sceptre_user_data},
+            self.stack_group_config.get('j2_environment', {})
+        )
+        compiled_path = self.sam_template_path.parent / f'{self.sam_template_path.stem}.compiled'
+        compiled_path.write_text(template_body)
+        return compiled_path
+
+    def _build(self, invoker: SamInvoker, template_path: Path):
         default_args = {
             'cached': True,
-            'template-file': str(self.sam_template_path)
+            'template-file': str(template_path)
         }
         build_args = {**default_args, **self.arguments.get('build_args', {})}
         invoker.invoke('build', build_args)
