@@ -31,7 +31,7 @@ This handler takes several arguments, two of which are required.
 
 ### Arguments:
 * `path` (string, required): The path **from the current working directory** (NOT the
-* project path) to the SAM Template.
+* project path) to the SAM Template. Paths to Jinja (.j2) files _are_ supported.
 * `artifact_bucket_name` (string, required): The bucket name where artifacts should be uploaded to
 on S3 during the packaging process. If your project has a `template_bucket_name`, you can set this
 to `{{ template_bucket_name }}`.
@@ -107,6 +107,12 @@ handler. You will need to ensure that any user or role executing these commands 
 permissions for these operations. For more information on required permissions, see the
 [documentation for SAM permissions](
 https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-permissions.html).
+
+### Jinja SAM Templates
+The SAM Handler supports using SAM templates that have Jinja logic in them. These Jinja templates
+will have access to the sceptre_user_data just like Jinja templates via the normal file handler
+do. This can be useful for implementing additional template logic (such as loops and other actions)
+in the template.
 
 ### Example Stack Config
 ```yaml
