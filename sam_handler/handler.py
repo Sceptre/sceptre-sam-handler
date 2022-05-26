@@ -153,11 +153,13 @@ class SAM(TemplateHandler):
         stack_group_config=None,
         *,
         invoker_class=SamInvoker,
-        get_temp_dir=tempfile.gettempdir
+        get_temp_dir=tempfile.gettempdir,
+        render_jinja_template=helper.render_jinja_template
     ):
         super().__init__(name, arguments, sceptre_user_data, connection_manager, stack_group_config)
         self.invoker_class = invoker_class
         self.get_temp_dir = get_temp_dir
+        self.render_jinja_template = render_jinja_template
 
     def schema(self) -> dict:
         """This is the json schema of the template handler. It is required by Sceptre to define
@@ -251,11 +253,11 @@ class SAM(TemplateHandler):
         if self.sam_template_path.suffix in self.standard_template_extensions:
             return self.sam_template_path
         elif self.sam_template_path.suffix in self.jinja_template_extensions:
-            return self.compile_jinja_template()
+            return self._compile_jinja_template()
 
-    def compile_jinja_template(self) -> Path:
+    def _compile_jinja_template(self) -> Path:
         self.logger.info("Compiling Jinja template...")
-        template_body = helper.render_jinja_template(
+        template_body = self.render_jinja_template(
             str(self.sam_template_path),
             {'sceptre_user_data': self.sceptre_user_data},
             self.stack_group_config.get('j2_environment', {})
