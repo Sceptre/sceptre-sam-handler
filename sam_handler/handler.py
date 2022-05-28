@@ -140,9 +140,8 @@ class SAM(TemplateHandler):
 
     SAM_ARTIFACT_DIRECTORY = 'sam_artifacts'
     standard_template_extensions = ['.yaml']
-    supported_template_extensions = (
-        standard_template_extensions + TemplateHandler.jinja_template_extensions
-    )
+    jinja_template_extensions = ['.j2']
+    supported_template_extensions = standard_template_extensions + jinja_template_extensions
 
     def __init__(
         self,
