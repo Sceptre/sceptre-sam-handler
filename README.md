@@ -7,11 +7,11 @@ AWS SAM template (and its associated project) as a stack's template.
 This template handler will run `sam build` and then `sam package` from the indicated SAM Template's
 directory in order to compile and generate a CloudFormation-ready template. Additionally, if you
 define your SAM template with a `.j2` extension, you can utilize [Jinja2 templating syntax and logic](
-https://jinja.palletsprojects.com/en/3.1.x/templates/) to render the SAM template prior to the build. 
+https://jinja.palletsprojects.com/en/3.1.x/templates/) to render the SAM template prior to the build.
 
-**By using the SAM Handler, you are letting SAM build your application, compile a SAM template, and 
-upload artifacts to S3, and then using Sceptre to actually do the deployment of the template to a stack.** 
-In other words, by using this handler with Sceptre, _you skip ever using `sam deploy`; It's not needed_. 
+**By using the SAM Handler, you are letting SAM build your application, compile a SAM template, and
+upload artifacts to S3, and then using Sceptre to actually do the deployment of the template to a stack.**
+In other words, by using this handler with Sceptre, _you skip ever using `sam deploy`; It's not needed_.
 You also shouldn't need a sam config file with deployment defaults, since you'll be using Sceptre to
 deploy rather than SAM.
 
@@ -29,11 +29,11 @@ https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/s
 on how to install SAM for your operating system. (Note: at least on Linux, this requires the ability
 to use `sudo`; If you need to install SAM where permissions escalation is not possible, this won't
 work.)
-* You can use [pipx](https://github.com/pypa/pipx) to install `aws-sam-cli` into an isolated virtual 
-environment where it can have exclusive claim to its dependency versions. This can be done without 
+* You can use [pipx](https://github.com/pypa/pipx) to install `aws-sam-cli` into an isolated virtual
+environment where it can have exclusive claim to its dependency versions. This can be done without
 privilege escalations.
 * If you want to install `aws-sam-cli` along with this handler using `pip`, you can use the "extra"
-like `pip install sceptre-sam-handler[sam]`. However, **using pip to install SAM is generally not 
+like `pip install sceptre-sam-handler[sam]`. However, **using pip to install SAM is generally not
 recommended, according to SAM's own documentation.** This can lead to dependency conflicts, since
 SAM CLI is particular about dependency versions.
 
@@ -133,7 +133,7 @@ https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/s
 The SAM Handler supports using SAM templates that have Jinja logic in them. These Jinja templates
 will have access to the `sceptre_user_data` just like Jinja templates via the normal file handler
 do. This can be useful for implementing additional template logic (such as loops and other actions)
-in the template. 
+in the template.
 
 If you need to pass variables into the Jinja template for reference via Jinja syntax,
 you should pass those variables via `sceptre_user_data`. Remember, resolvers can be used with
@@ -142,10 +142,10 @@ in areas that a SAM Template cannot use parameters (such as in Transforms).
 
 ### Resolvers in the SAM Handler parameters
 It's likely that you'll want to use your template_bucket_name as your artifact_bucket_name, so you
-don't need to have a separate bucket for your sam artifacts. However, since template_bucket_name is 
+don't need to have a separate bucket for your sam artifacts. However, since template_bucket_name is
 technically a resolvable property that could be set via `!stack_output` on your StackGroup config,
 you cannot directly reference it in your Stack Config with `{{ template_bucket_name }}` if you defined
-it on the StackGroup Config using a resolver. For more information on _why_ you can't do this, you 
+it on the StackGroup Config using a resolver. For more information on _why_ you can't do this, you
 should read about the [Resolution order of values](
 https://docs.sceptre-project.org/3.1.0/docs/stack_config.html#resolution-order-of-values) for Sceptre
 Stack Configs on Sceptre's documentation.
@@ -164,7 +164,7 @@ template:
     path: path/from/my/cwd/template.yaml
     # If your template_bucket_name is inherited from your StackGroup as a resolver, you cannot use
     # {{ template_bucket_name }} to reference it, so you need to use the !stack_attr resolver. But
-    # using !stack_attr will always work for you anyway, so you might as well configure the SAM 
+    # using !stack_attr will always work for you anyway, so you might as well configure the SAM
     # handler that way.
     artifact_bucket_name: !stack_attr template_bucket_name
     # It makes the most sense to use the same prefix as your template_key_prefix so that your SAM
@@ -200,7 +200,7 @@ template:
 parameters:
     my_template_parameter: !stack_output some/other/stack.yaml::SomeOutput
 
-# sceptre_user_data is resolved PRIOR TO building and deploying the template and it is passed to 
+# sceptre_user_data is resolved PRIOR TO building and deploying the template and it is passed to
 # Jinja. So you can use sceptre_user_data to control Jinja logic or render values into the template.
 # And because sceptre_user_data is resolvable, you can use resolvers to pass values and even whole
 # template segments to render into the final SAM template before SAM build is ever invoked.
