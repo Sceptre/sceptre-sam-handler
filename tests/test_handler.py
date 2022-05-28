@@ -7,6 +7,8 @@ from unittest.mock import Mock, create_autospec
 from botocore.credentials import Credentials
 from pyfakefs.fake_filesystem_unittest import TestCase as FsTestCase
 from sceptre.connection_manager import ConnectionManager
+from sceptre.exceptions import UnsupportedTemplateFileTypeError
+from sceptre.template_handlers import helper
 
 from sam_handler.handler import SAM, SamInvoker
 
@@ -30,6 +32,10 @@ class TestSAM(FsTestCase):
         self.invoker_class = create_autospec(SamInvoker, return_value=self.invoker)
         self.temp_dir = '/temp'
         self.get_temp_dir = lambda: self.temp_dir
+        self.render_jinja_template: Mock = create_autospec(
+            helper.render_jinja_template,
+            return_value=self.processed_contents
+        )
 
         self.region = 'region'
 
@@ -38,18 +44,26 @@ class TestSAM(FsTestCase):
             'region': self.region,
         })
         self.name = 'top/mid/stack'
+        self.sceptre_user_data = {'user': 'data'}
+        self.stack_group_config = {'j2_environment': 'blah'}
         self.handler = SAM(
             self.name,
             connection_manager=self.connection_manager,
             arguments=self.arguments,
+            sceptre_user_data=self.sceptre_user_data,
+            stack_group_config=self.stack_group_config,
             invoker_class=self.invoker_class,
-            get_temp_dir=self.get_temp_dir
+            get_temp_dir=self.get_temp_dir,
+            render_jinja_template=self.render_jinja_template
         )
         self._is_built = False
 
     def fake_invoke(self, command, args):
         if command == 'build':
             self._is_built = True
+            self.assertTrue(
+                Path(args['template-file']).exists()
+            )
         elif command == 'package':
             self.assertTrue(self._is_built)
             output_file = Path(args['output-template-file'])
@@ -138,6 +152,42 @@ class TestSAM(FsTestCase):
             'region': 'us-east-1'
         }
         self.handler.validate()
+
+    def test_handle__path_has_jinja_extension__renders_template_with_correct_parameters(self):
+        self.arguments['path'] = 'my/random/path.yaml.j2'
+        self.handler.handle()
+        self.render_jinja_template.assert_any_call(
+            str(Path(self.arguments['path']).absolute()),
+            {'sceptre_user_data': self.sceptre_user_data},
+            self.stack_group_config.get('j2_environment')
+        )
+
+    def test_handle__path_has_jinja_extension__invokes_build_with_compiled_jinja_template_path(self):
+        self.arguments['path'] = 'my/random/path.yaml.j2'
+        expected_file_path = Path('my/random/path.yaml.compiled').absolute()
+        self.handler.handle()
+        self.invoker.invoke.assert_any_call(
+            'build',
+            {
+                'cached': True,
+                'template-file': str(expected_file_path)
+            }
+        )
+
+    def test_handle__path_has_jinja_extension__deletes_compiled_jinja_file(self):
+        self.arguments['path'] = 'my/random/path.yaml.j2'
+        expected_file_path = Path('my/random/path.yaml.compiled').absolute()
+        self.handler.handle()
+        self.assertFalse(expected_file_path.exists())
+
+    def test_handle__path_has_jinja_extension__returns_contents_of_destination_template_file(self):
+        result = self.handler.handle()
+        self.assertEqual(self.processed_contents, result)
+
+    def test_handle__unsupported_path_extension__raises_unsupported_file_type_error(self):
+        self.arguments['path'] = 'my/unsupported/file.yucky'
+        with self.assertRaises(UnsupportedTemplateFileTypeError):
+            self.handler.handle()
 
 
 class TestSamInvoker(TestCase):

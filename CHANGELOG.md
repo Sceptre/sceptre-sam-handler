@@ -6,12 +6,10 @@ Categories: Added, Removed, Changed, Fixed, Nonfunctional, Deprecated
 
 <!--- All unreleased items go here  -->
 
-<!--- Example CHANGELOG entry
 
-## 0.1.0 (2019.07.02)
-
+## 0.2.0
 ### Added
+* Jinja template support
 
-- Initial template handler code
-
--->
+### Nonfunctional
+* New/modified documentation to reflect using `!stack_attr` and Jinja2 templates
