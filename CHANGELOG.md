@@ -8,5 +8,8 @@ Categories: Added, Removed, Changed, Fixed, Nonfunctional, Deprecated
 
 
 ## 0.2.0
-### ADDED
+### Added
 * Jinja template support
+
+### Nonfunctional
+* New/modified documentation to reflect using `!stack_attr` and Jinja2 templates
