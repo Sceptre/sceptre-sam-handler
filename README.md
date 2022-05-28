@@ -52,7 +52,7 @@ This handler takes several arguments, two of which are required.
 
 ### Arguments:
 * `path` (string, required): The path **from the current working directory** (NOT the
-* project path) to the SAM Template. Paths to Jinja (.j2) files _are_ supported.
+project path) to the SAM Template. The path _must_ end in either ".yaml" or ".j2".
 * `artifact_bucket_name` (string, required): The bucket name where artifacts should be uploaded to
 on S3 during the packaging process. If your project has a `template_bucket_name`, you can set this
 to `{{ template_bucket_name }}`.
