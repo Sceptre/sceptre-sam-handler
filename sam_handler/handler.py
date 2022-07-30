@@ -191,7 +191,11 @@ class SAM(TemplateHandler):
         self._create_generation_destination()
         template_path = self._prepare_template()
         self._build(invoker, template_path)
-        if template_path != self.sam_template_path:
+
+        build_args = self.arguments.get('build_args', {})
+        delete_temporary_jinja_file = build_args.get('delete_temporary_jinja_file', True)
+
+        if delete_temporary_jinja_file is True and template_path != self.sam_template_path:
             # We created a temporary file for the build, so let's remove it now.
             template_path.unlink()
 
