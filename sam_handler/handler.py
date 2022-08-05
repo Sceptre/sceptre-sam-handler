@@ -175,6 +175,9 @@ class SAM(TemplateHandler):
                 },
                 "package_args": {
                     "type": "object",
+                },
+                "skip_jinja_cleanup": {
+                    "type": "boolean"
                 }
             },
             "required": [
