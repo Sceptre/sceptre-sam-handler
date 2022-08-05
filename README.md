@@ -62,6 +62,8 @@ the project's `{{ template_key_prefix }}`.
 flag-type arguments that have no value, set the value to "True".
 * `package_args` (dict, optional): Additional key/value pairs to apply to `sam package`. The
 same is true here as for `build_args` for flag-type arguments.
+* `skip_jinja_cleanup` (bool): Can be set to True to retain the jinja file after processing. This 
+can be used to troubleshoot issues. 
 
 ### How does this handler work?
 
