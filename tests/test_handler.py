@@ -174,7 +174,7 @@ class TestSAM(FsTestCase):
             }
         )
 
-    def test_handle__path_has_jinja_extension_and_skip_jinja_cleanup_flag_is_false__deletes_compiled_jinja_file(self):
+    def test_handle__path_has_jinja_extension__deletes_compiled_jinja_file(self):
         self.arguments['path'] = 'my/random/path.yaml.j2'
         expected_file_path = Path('my/random/path.yaml.compiled').absolute()
         self.handler.handle()
