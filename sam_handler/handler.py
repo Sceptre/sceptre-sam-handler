@@ -175,6 +175,9 @@ class SAM(TemplateHandler):
                 },
                 "package_args": {
                     "type": "object",
+                },
+                "skip_jinja_cleanup": {
+                    "type": "boolean"
                 }
             },
             "required": [
@@ -191,8 +194,12 @@ class SAM(TemplateHandler):
         self._create_generation_destination()
         template_path = self._prepare_template()
         self._build(invoker, template_path)
-        if template_path != self.sam_template_path:
+
+        skip_jinja_cleanup = self.arguments.get('skip_jinja_cleanup', False)
+
+        if not skip_jinja_cleanup and template_path != self.sam_template_path:
             # We created a temporary file for the build, so let's remove it now.
+
             template_path.unlink()
 
         self._package(invoker)
