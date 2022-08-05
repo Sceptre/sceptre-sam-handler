@@ -192,11 +192,11 @@ class SAM(TemplateHandler):
         template_path = self._prepare_template()
         self._build(invoker, template_path)
 
-        build_args = self.arguments.get('build_args', {})
-        delete_temporary_jinja_file = build_args.get('delete_temporary_jinja_file', True)
-
-        if delete_temporary_jinja_file is True and template_path != self.sam_template_path:
+        skip_jinja_cleanup = self.arguments.get('skip_jinja_cleanup', True)
+        
+        if skip_jinja_cleanup and template_path != self.sam_template_path:
             # We created a temporary file for the build, so let's remove it now.
+            print(template_path)
             template_path.unlink()
 
         self._package(invoker)

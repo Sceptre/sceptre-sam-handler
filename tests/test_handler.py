@@ -182,7 +182,7 @@ class TestSAM(FsTestCase):
 
     def test_handle__path_has_jinja_extension_and_delete_flag_is_false__deletes_compiled_jinja_file(self):
         self.arguments['path'] = 'my/random/path.yaml.j2'
-        self.arguments['build_args'] = {'delete_temporary_jinja_file': False}
+        self.arguments['skip_jinja_cleanup'] = False
         expected_file_path = Path('my/random/path.yaml.compiled').absolute()
         self.handler.handle()
         self.assertTrue(expected_file_path.exists())
