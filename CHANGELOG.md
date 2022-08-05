@@ -6,6 +6,9 @@ Categories: Added, Removed, Changed, Fixed, Nonfunctional, Deprecated
 
 <!--- All unreleased items go here  -->
 
+## 0.3.0
+### Added
+* Parameter to retain Jinja file after processing
 
 ## 0.2.0
 ### Added
