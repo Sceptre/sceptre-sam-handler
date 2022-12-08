@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cloudreach/sceptre-circleci:0.8.0
+      - image: sceptreorg/sceptre-circleci:1.1.0
 
     steps:
       - checkout
@@ -39,7 +39,7 @@ jobs:
 
   lint-and-unit-test:
     docker:
-      - image: cloudreach/sceptre-circleci:0.8.0
+      - image: sceptreorg/sceptre-circleci:1.1.0
 
     steps:
       - attach_workspace:
