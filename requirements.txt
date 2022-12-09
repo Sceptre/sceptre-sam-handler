@@ -3,7 +3,7 @@ coverage==4.4.2
 pre-commit>=2.12.0,<2.13
 pyfakefs==4.5.3
 pytest-runner>=3.0.0,<3.1.0
-pytest>=3.2.0,<3.3.0
+pytest>=3.2.0
 readme-renderer>=24.0
 setuptools>=40.6.2
 sceptre>=2.7.0
