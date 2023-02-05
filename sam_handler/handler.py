@@ -1,12 +1,9 @@
-import os
 import posixpath
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Dict
 
-from botocore.credentials import Credentials
 from sceptre.connection_manager import ConnectionManager
 from sceptre.exceptions import UnsupportedTemplateFileTypeError
 from sceptre.template_handlers import TemplateHandler, helper
@@ -18,7 +15,6 @@ class SamInvoker:
         connection_manager: ConnectionManager,
         sam_directory: Path,
         *,
-        environment_variables: Dict[str, str] = os.environ,
         run_subprocess=subprocess.run
     ):
         """A utility for invoking SAM commands using subprocess
@@ -27,15 +23,12 @@ class SamInvoker:
             connection_manager: The TemplateHandler's ConnectionManager instance to use for obtaining
                 session environment variables
             sam_directory: The directory of the SAM template to use as the CWD when invoking SAM
-            environment_variables: The dict of environment variables to use for invoking the SAM
-                handler
             run_subprocess: The function to use for invoking subprocesses, matching the signature of
                 subprocess.run
         """
         self.connection_manager = connection_manager
         self.sam_directory = sam_directory
 
-        self.environment_variables = environment_variables
         self.run_subprocess = run_subprocess
 
     def invoke(self, command_name: str, args_dict: dict) -> None:
@@ -81,7 +74,7 @@ class SamInvoker:
         return ' '.join(args)
 
     def _invoke_sam_command(self, command: str) -> None:
-        environment_variables = self._get_envs()
+        environment_variables = self.connection_manager.create_session_environment_variables()
         self.run_subprocess(
             command,
             shell=True,
@@ -92,45 +85,6 @@ class SamInvoker:
             stdout=sys.stderr,
             env=environment_variables
         )
-
-    def _get_envs(self) -> Dict[str, str]:
-        """Obtains the environment variables to pass to the subprocess.
-
-        Sceptre can assume roles, profiles, etc... to connect to AWS for a given stack. This is
-        very useful. However, we need that SAME connection information to carry over to SAM when we
-        invoke it. The most precise way to do this is to use the same session credentials being used
-        by Sceptre for other stack operations. This method obtains those credentials and sets them
-        as environment variables that are passed to the subprocess and will, in turn, be used by
-        SAM CLI.
-
-        The environment variables dict created by this method will inherit all existing
-        environment variables in the current environment, but the AWS connection environment
-        variables will be saved overridden by the ones for this stack.
-
-        Returns:
-            The dictionary of environment variables.
-        """
-        envs = self.environment_variables.copy()
-        # Set aws environment variables specific to whatever AWS configuration has been set on the
-        # stack's connection manager.
-        credentials: Credentials = self.connection_manager._get_session(
-            self.connection_manager.profile,
-            self.connection_manager.region,
-            self.connection_manager.iam_role
-        ).get_credentials()
-        envs.update(
-            AWS_ACCESS_KEY_ID=credentials.access_key,
-            AWS_SECRET_ACCESS_KEY=credentials.secret_key,
-        )
-
-        # There might not be a session token, so if there isn't one, make sure it doesn't exist in
-        # the envs being passed to the subprocess
-        if credentials.token is None:
-            envs.pop('AWS_SESSION_TOKEN', None)
-        else:
-            envs['AWS_SESSION_TOKEN'] = credentials.token
-
-        return envs
 
 
 class SAM(TemplateHandler):
