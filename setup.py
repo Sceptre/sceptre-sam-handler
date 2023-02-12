@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-__version__ = "0.3.1"
+__version__ = "1.0.0"
 
 TEMPLATE_HANDLER_NAME = 'sceptre-sam-handler'
 TEMPLATE_HANDLER_TYPE = 'sam'
@@ -16,7 +16,7 @@ with open("README.md") as readme_file:
     README = readme_file.read()
 
 install_requirements = [
-    'sceptre>=2.7',
+    'sceptre>=4.0',
 ]
 
 test_requirements = [
@@ -54,7 +54,8 @@ setup(
         "Environment :: Console",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9"
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10"
     ],
     test_suite="tests",
     install_requires=install_requirements,

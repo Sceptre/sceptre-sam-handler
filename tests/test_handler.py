@@ -211,46 +211,36 @@ class TestSamInvoker(TestCase):
         self.region = 'down under'
         self.iam_role = 'iam not!'
 
+        self.envs = {
+            'some': 'env'
+        }
+
         self.connection_manager = Mock(**{
             'spec': ConnectionManager,
-            '_get_session.return_value.get_credentials.return_value': self.credentials,
+            'create_session_environment_variables.return_value': self.envs,
             'profile': self.profile,
             'region': self.region,
             'iam_role': self.iam_role
 
         })
         self.sam_directory = Path('/path/to/my/sam/directory')
-        self.envs = {
-            'some': 'env'
-        }
+
         self.run_subprocess = Mock(spec=subprocess.run)
 
         self.invoker = SamInvoker(
             connection_manager=self.connection_manager,
             sam_directory=self.sam_directory,
-            environment_variables=self.envs,
             run_subprocess=self.run_subprocess
         )
 
-    def assert_sam_command(self, command, *, expected_envs=None):
-        if expected_envs:
-            envs = expected_envs
-        else:
-            envs = self.envs.copy()
-            envs.update(
-                AWS_ACCESS_KEY_ID=self.credentials.access_key,
-                AWS_SECRET_ACCESS_KEY=self.credentials.secret_key
-            )
-            if self.credentials.token is not None:
-                envs['AWS_SESSION_TOKEN'] = self.credentials.token
-
+    def assert_sam_command(self, command):
         self.run_subprocess.assert_called_with(
             command,
             shell=True,
             check=True,
             cwd=self.sam_directory,
             stdout=sys.stderr,
-            env=envs
+            env=self.envs
         )
 
     def test_invoke__runs_sam_command_with_args(self):
@@ -267,33 +257,3 @@ class TestSamInvoker(TestCase):
         self.invoker.invoke('build', {})
         expected_command = 'sam build'
         self.assert_sam_command(expected_command)
-
-    def test_sam_command__injects_aws_environment_variables_into_sam_command(self):
-        self.invoker.invoke('command', {})
-
-        self.assert_sam_command(
-            'sam command',
-            expected_envs={
-                **self.envs,
-                **{
-                    'AWS_ACCESS_KEY_ID': self.credentials.access_key,
-                    'AWS_SECRET_ACCESS_KEY': self.credentials.secret_key,
-                    'AWS_SESSION_TOKEN': self.credentials.token,
-                }
-            }
-        )
-
-    def test_sam_command__session_token_is_none__does_not_inject_that_to_envs(self):
-        self.credentials.token = None
-        self.invoker.invoke('command', {})
-
-        self.assert_sam_command(
-            'sam command',
-            expected_envs={
-                **self.envs,
-                **{
-                    'AWS_ACCESS_KEY_ID': self.credentials.access_key,
-                    'AWS_SECRET_ACCESS_KEY': self.credentials.secret_key,
-                }
-            }
-        )
