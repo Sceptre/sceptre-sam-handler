@@ -15,7 +15,7 @@ class SamInvoker:
         connection_manager: ConnectionManager,
         sam_directory: Path,
         *,
-        run_subprocess=subprocess.run
+        run_subprocess=subprocess.run,
     ):
         """A utility for invoking SAM commands using subprocess
 
@@ -39,9 +39,9 @@ class SamInvoker:
             args_dict: The dictionary of arguments to pass to the command
         """
         command_args = self._create_args(args_dict)
-        command = f'sam {command_name}'
-        if command_args.strip() != '':
-            command += f' {command_args}'
+        command = f"sam {command_name}"
+        if command_args.strip() != "":
+            command += f" {command_args}"
         return self._invoke_sam_command(command)
 
     def _create_args(self, parameters: dict) -> str:
@@ -65,16 +65,18 @@ class SamInvoker:
                 # It's an option with no value, so let's skip it
                 continue
 
-            argline = f'--{arg_name}'
+            argline = f"--{arg_name}"
             if arg_value is not True:
                 # If the value is True, it's a flag, so we don't want a value
                 argline += f' "{arg_value}"'
             args.append(argline)
 
-        return ' '.join(args)
+        return " ".join(args)
 
     def _invoke_sam_command(self, command: str) -> None:
-        environment_variables = self.connection_manager.create_session_environment_variables()
+        environment_variables = (
+            self.connection_manager.create_session_environment_variables()
+        )
         self.run_subprocess(
             command,
             shell=True,
@@ -83,7 +85,7 @@ class SamInvoker:
             # Redirect stdout to stderr so it doesn't combine with stdout that we might want
             # to capture.
             stdout=sys.stderr,
-            env=environment_variables
+            env=environment_variables,
         )
 
 
@@ -92,10 +94,12 @@ class SAM(TemplateHandler):
     build and package a SAM template and deploy it with Sceptre.
     """
 
-    SAM_ARTIFACT_DIRECTORY = 'sam_artifacts'
-    standard_template_extensions = ['.yaml']
-    jinja_template_extensions = ['.j2']
-    supported_template_extensions = standard_template_extensions + jinja_template_extensions
+    SAM_ARTIFACT_DIRECTORY = "sam_artifacts"
+    standard_template_extensions = [".yaml"]
+    jinja_template_extensions = [".j2"]
+    supported_template_extensions = (
+        standard_template_extensions + jinja_template_extensions
+    )
 
     def __init__(
         self,
@@ -107,9 +111,11 @@ class SAM(TemplateHandler):
         *,
         invoker_class=SamInvoker,
         get_temp_dir=tempfile.gettempdir,
-        render_jinja_template=helper.render_jinja_template
+        render_jinja_template=helper.render_jinja_template,
     ):
-        super().__init__(name, arguments, sceptre_user_data, connection_manager, stack_group_config)
+        super().__init__(
+            name, arguments, sceptre_user_data, connection_manager, stack_group_config
+        )
         self.invoker_class = invoker_class
         self.get_temp_dir = get_temp_dir
         self.render_jinja_template = render_jinja_template
@@ -130,26 +136,23 @@ class SAM(TemplateHandler):
                 "package_args": {
                     "type": "object",
                 },
-                "skip_jinja_cleanup": {
-                    "type": "boolean"
-                }
+                "skip_jinja_cleanup": {"type": "boolean"},
             },
             "required": [
                 "path",
                 "artifact_bucket_name",
-            ]
+            ],
         }
 
     def handle(self) -> str:
         invoker = self.invoker_class(
-            connection_manager=self.connection_manager,
-            sam_directory=self.sam_directory
+            connection_manager=self.connection_manager, sam_directory=self.sam_directory
         )
         self._create_generation_destination()
         template_path = self._prepare_template()
         self._build(invoker, template_path)
 
-        skip_jinja_cleanup = self.arguments.get('skip_jinja_cleanup', False)
+        skip_jinja_cleanup = self.arguments.get("skip_jinja_cleanup", False)
 
         if not skip_jinja_cleanup and template_path != self.sam_template_path:
             # We created a temporary file for the build, so let's remove it now.
@@ -161,7 +164,7 @@ class SAM(TemplateHandler):
 
     @property
     def sam_template_path(self) -> Path:
-        return Path(self.arguments['path']).absolute()
+        return Path(self.arguments["path"]).absolute()
 
     @property
     def sam_directory(self) -> Path:
@@ -170,7 +173,7 @@ class SAM(TemplateHandler):
     @property
     def destination_template_path(self) -> Path:
         suffix = self.sam_template_path.suffix
-        path_segments = self.name.split('/')
+        path_segments = self.name.split("/")
         path_segments[-1] += suffix
         return Path(self.get_temp_dir()).joinpath(*path_segments).absolute()
 
@@ -184,7 +187,7 @@ class SAM(TemplateHandler):
         artifacts.
         """
         prefix_segments = [self.name, self.SAM_ARTIFACT_DIRECTORY]
-        sam_package_prefix = self.arguments.get('artifact_prefix')
+        sam_package_prefix = self.arguments.get("artifact_prefix")
 
         if sam_package_prefix:
             prefix_segments.insert(0, sam_package_prefix)
@@ -197,7 +200,7 @@ class SAM(TemplateHandler):
         """Returns the S3 bucket name that should be passed to SAM CLI for uploading the packaged
         artifacts.
         """
-        return self.arguments['artifact_bucket_name']
+        return self.arguments["artifact_bucket_name"]
 
     def _create_generation_destination(self):
         """Creates the destination_template_directory, if it doesn't exist."""
@@ -219,27 +222,26 @@ class SAM(TemplateHandler):
         self.logger.info("Compiling Jinja template...")
         template_body = self.render_jinja_template(
             str(self.sam_template_path),
-            {'sceptre_user_data': self.sceptre_user_data},
-            self.stack_group_config.get('j2_environment', {})
+            {"sceptre_user_data": self.sceptre_user_data},
+            self.stack_group_config.get("j2_environment", {}),
         )
-        compiled_path = self.sam_template_path.parent / f'{self.sam_template_path.stem}.compiled'
+        compiled_path = (
+            self.sam_template_path.parent / f"{self.sam_template_path.stem}.compiled"
+        )
         compiled_path.write_text(template_body)
         return compiled_path
 
     def _build(self, invoker: SamInvoker, template_path: Path):
-        default_args = {
-            'cached': True,
-            'template-file': str(template_path)
-        }
-        build_args = {**default_args, **self.arguments.get('build_args', {})}
-        invoker.invoke('build', build_args)
+        default_args = {"cached": True, "template-file": str(template_path)}
+        build_args = {**default_args, **self.arguments.get("build_args", {})}
+        invoker.invoke("build", build_args)
 
     def _package(self, invoker: SamInvoker):
         default_args = {
-            's3-bucket': self.artifact_bucket_name,
-            'region': self.connection_manager.region,
-            's3-prefix': self.artifact_key_prefix,
-            'output-template-file': self.destination_template_path,
+            "s3-bucket": self.artifact_bucket_name,
+            "region": self.connection_manager.region,
+            "s3-prefix": self.artifact_key_prefix,
+            "output-template-file": self.destination_template_path,
         }
-        package_args = {**default_args, **self.arguments.get('package_args', {})}
-        invoker.invoke('package', package_args)
+        package_args = {**default_args, **self.arguments.get("package_args", {})}
+        invoker.invoke("package", package_args)

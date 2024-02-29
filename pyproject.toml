@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "sceptre-sam-handler"
+version = "1.0.0"
+packages = [{ include = "sam_handler" }]
+readme = "README.md"
+homepage = "https://github.com/Sceptre/sceptre-sam-handler"
+repository = "https://github.com/Sceptre/sceptre-sam-handler"
+authors = ["Sceptre <sceptreorg@gmail.com>"]
+description = "Packages and renders SAM templates for use"
+keywords = ["sceptre", "sceptre-handler", "AWS", "serverless"]
+license = "Apache-2.0"
+classifiers = [
+  "Intended Audience :: Developers",
+  "Natural Language :: English",
+  "Environment :: Console",
+]
+
+[tool.poetry.plugins."sceptre.template_handlers"]
+"sam" = "sam_handler.handler:SAM"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.2.1"
+tox = "^3.23.0"
+pytest = "^7.4.3"
+pytest-cov = "^4.0.0"
+pyfakefs = "^5.0"
+sceptre = "^4.0"
+tox-gh-matrix = "^0.2"
+
+[tool.poetry.extras]
+sam = ["aws-sam-cli"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
