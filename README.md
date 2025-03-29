@@ -20,7 +20,7 @@ By using this handler, you can now use SAM templates with all your favorite Scep
 
 ## How to install sceptre-sam-handler
 
-Simply `pip install scepre-sam-handler`. **Additionally, you need SAM CLI installed and accessible** on
+Simply `pip install sceptre-sam-handler`. **Additionally, you need SAM CLI installed and accessible** on
 the PATH for the handler to invoke as a subprocess.
 
 There are three main ways you can install SAM CLI:
