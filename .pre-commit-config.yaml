@@ -3,21 +3,21 @@ default_language_version:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: end-of-file-fixer
       - id: mixed-line-ending
       - id: trailing-whitespace
   - repo: https://github.com/PyCQA/flake8
-    rev: 7.0.0
+    rev: 7.3.0
     hooks:
       - id: flake8
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.35.1
+    rev: v1.38.0
     hooks:
       - id: yamllint
   - repo: https://github.com/awslabs/cfn-python-lint
-    rev: v0.86.3
+    rev: v1.56.0
     hooks:
       - id: cfn-python-lint
         args:
@@ -35,12 +35,12 @@ repos:
             ^.github/|
             ^.pre-commit-config.yaml
           )
-  - repo: https://github.com/psf/black
-    rev: 24.4.0
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 26.5.1
     hooks:
       - id: black
   - repo: https://github.com/python-poetry/poetry
-    rev: '1.8.0'
+    rev: '2.4.1'
     hooks:
       # temporarily disable check due to issue https://gitlab.com/smop/pre-commit-hooks/-/issues/3
       #- id: poetry-check
@@ -48,7 +48,7 @@ repos:
         language_version: python3.10
         args: ['--check']
   - repo: https://github.com/sirosen/check-jsonschema
-    rev: 0.28.2
+    rev: 0.38.0
     hooks:
       - id: check-github-workflows
       - id: check-github-actions
